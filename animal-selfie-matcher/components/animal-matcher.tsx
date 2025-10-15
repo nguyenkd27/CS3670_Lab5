@@ -6,6 +6,8 @@ import { useState } from "react"
 import { Upload, Sparkles, Camera } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 
 interface AnimalMatch {
@@ -15,10 +17,21 @@ interface AnimalMatch {
   emoji: string
 }
 
+interface UserInfo {
+  name: string
+  age: string
+  country: string
+}
+
 export function AnimalMatcher() {
   const [image, setImage] = useState<string | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [result, setResult] = useState<AnimalMatch | null>(null)
+  const [userInfo, setUserInfo] = useState<UserInfo>({
+    name: "",
+    age: "",
+    country: "",
+  })
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -43,7 +56,7 @@ export function AnimalMatcher() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ image }),
+        body: JSON.stringify({ image, userInfo }),
       })
 
       const data = await response.json()
@@ -79,6 +92,41 @@ export function AnimalMatcher() {
           {!image ? (
             // Upload State
             <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={userInfo.name}
+                    onChange={(e) => setUserInfo({ ...userInfo, name: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="age">Age</Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      placeholder="Your age"
+                      value={userInfo.age}
+                      onChange={(e) => setUserInfo({ ...userInfo, age: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country</Label>
+                    <Input
+                      id="country"
+                      type="text"
+                      placeholder="Your country"
+                      value={userInfo.country}
+                      onChange={(e) => setUserInfo({ ...userInfo, country: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <label
                 htmlFor="image-upload"
                 className={cn(
@@ -114,6 +162,16 @@ export function AnimalMatcher() {
               {result ? (
                 // Results Display
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  {userInfo.name && (
+                    <div className="text-center pb-4 border-b border-border">
+                      <p className="text-sm text-muted-foreground">
+                        {userInfo.name}
+                        {userInfo.age && `, ${userInfo.age} years old`}
+                        {userInfo.country && ` from ${userInfo.country}`}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="text-center space-y-4">
                     <div className="text-6xl">{result.emoji}</div>
                     <div>

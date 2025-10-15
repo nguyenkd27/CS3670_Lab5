@@ -2,11 +2,15 @@ import { generateText } from "ai"
 
 export async function POST(req: Request) {
   try {
-    const { image } = await req.json()
+    const { image, userInfo } = await req.json()
 
     if (!image) {
       return Response.json({ error: "No image provided" }, { status: 400 })
     }
+
+    const userContext = userInfo?.name
+      ? `The person's name is ${userInfo.name}${userInfo.age ? `, they are ${userInfo.age} years old` : ""}${userInfo.country ? `, and they live in ${userInfo.country}` : ""}.`
+      : ""
 
     const { text } = await generateText({
       model: "openai/gpt-4o",
@@ -16,7 +20,7 @@ export async function POST(req: Request) {
           content: [
             {
               type: "text",
-              text: `Analyze this selfie and determine which animal the person most resembles based on their facial features, expression, and overall appearance. 
+              text: `Analyze this selfie and determine which animal the person most resembles based on their facial features, expression, and overall appearance. ${userContext}
               
               Respond ONLY with a JSON object in this exact format (no markdown, no code blocks):
               {
